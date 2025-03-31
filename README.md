@@ -17,7 +17,7 @@ Cellular automata have found application in various areas, including physics, th
 As it turn out, this system achieves an impressive diversity of behavior, fluctuating between apparent randomness and order, and one of its most interesting features is the frequent occurrence of _gliders_, arrangements of cells that essentially move themselves across the grid. The thing is, it is possible to arrange the automaton so that this _gliders_ interact to perform computations, so all in all the Game of Life can emulate a universal Turing machine. To sum it all up, theoretically, anything that can be computed algorithmically can be computed within the Game of Life.
 
 ## About this project
-Wrok in progress...
+Work in progress... the idea is to have an interactive implementation of the game where the user can set up an initial cell population and watch it evolve.
 
 ## Dependencies
 - rust 1.85.0
