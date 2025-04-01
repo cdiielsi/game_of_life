@@ -14,6 +14,8 @@ impl GameOfLife {
     /// D A D D
     /// D A D D
     /// D A D D
+    /// if the size of the board is usize::MAX x usize::MAX the bottom right corner of the board has a square pattern
+    /// as well, this is for testing purposes.
     /// If size is smaller than 3x3 the board created has no living cells.
     pub fn new(width: usize, height: usize) -> Self {
         let mut alive_cells = HashSet::new();
@@ -21,6 +23,12 @@ impl GameOfLife {
             alive_cells.insert((0, 1));
             alive_cells.insert((1, 1));
             alive_cells.insert((2, 1));
+            if width == usize::MAX && height == usize::MAX{
+                alive_cells.insert((usize::MAX-1, usize::MAX-1));
+                alive_cells.insert((usize::MAX-2, usize::MAX-1));
+                alive_cells.insert((usize::MAX-2, usize::MAX-2));
+                alive_cells.insert((usize::MAX-1, usize::MAX-2));
+            }
         }
         Self {
             width,
@@ -186,6 +194,38 @@ mod tests {
         let current_cell_alive = false;
         gol.process_cell(&mut new_alive_cells, current_cell, current_cell_alive);
         assert_eq!(new_alive_cells.len(), 2);
+        assert!(new_alive_cells.contains(&current_cell));
+    }
+
+    #[test]
+    /// The board for this test has the usual cross pattern as the previous boards and also has a square pattern at the
+    /// bottom right corner, this pattern is constant.
+    fn process_cell_for_overflow_case() {
+        let gol = GameOfLife::new(usize::MAX, usize::MAX);
+        let mut new_alive_cells = HashSet::new();
+
+        let current_cell = (usize::MAX-1, usize::MAX-1); // Alive cell has 3 living neighbours => stays alive.
+        let current_cell_alive = false;
+        gol.process_cell(&mut new_alive_cells, current_cell, current_cell_alive);
+        assert_eq!(new_alive_cells.len(), 1);
+        assert!(new_alive_cells.contains(&current_cell));
+
+        let current_cell = (usize::MAX-2, usize::MAX-1); // Alive cell only has 3 living neighbours => stays alive.
+        let current_cell_alive = true;
+        gol.process_cell(&mut new_alive_cells, current_cell, current_cell_alive);
+        assert_eq!(new_alive_cells.len(), 2);
+        assert!(new_alive_cells.contains(&current_cell));
+
+        let current_cell = (usize::MAX-1, usize::MAX-2); // Alive cell has 3 living neighbours => stays alive.
+        let current_cell_alive = true;
+        gol.process_cell(&mut new_alive_cells, current_cell, current_cell_alive);
+        assert_eq!(new_alive_cells.len(), 3);
+        assert!(new_alive_cells.contains(&current_cell));
+
+        let current_cell = (usize::MAX-2, usize::MAX-2); // Alive cell has 3 living neighbours => stays alive.
+        let current_cell_alive = false;
+        gol.process_cell(&mut new_alive_cells, current_cell, current_cell_alive);
+        assert_eq!(new_alive_cells.len(), 4);
         assert!(new_alive_cells.contains(&current_cell));
     }
 
