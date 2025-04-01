@@ -67,10 +67,7 @@ impl GameOfLife {
                 }
             }
         }
-        if (current_cell_alive && (neighbours == 2 || neighbours == 3))
-            || (!current_cell_alive && neighbours == 3)
-        {
-            // Living cell with 2 or 3 neighbours lives on OR Dead cell with 3 neighbours comes to life
+        if neighbours == 3 || current_cell_alive && neighbours == 2 {
             next_iteration_set.insert(current_cell);
         }
     }
