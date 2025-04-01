@@ -1,3 +1,4 @@
+use macroquad::prelude::*;
 use std::{cmp::min, collections::HashSet};
 
 /// Implementation of game of life. The struct has two field for the boards dimentions and anotherone to register
@@ -106,9 +107,28 @@ impl GameOfLife {
         for i in 0..self.width {
             for j in 0..self.height {
                 if self.alive_cells.contains(&(i, j)) {
-                    print!("🟩");
-                } else {
                     print!("⬛");
+                } else {
+                    print!("⬜");
+                }
+            }
+            println!();
+        }
+    }
+
+    pub fn draw_gol_board(&self) {
+        let x_offset = screen_width() / self.width as f32;
+        let y_offset = screen_height() / self.height as f32;
+        for i in 0..self.width {
+            for j in 0..self.height {
+                if self.alive_cells.contains(&(i, j)) {
+                    draw_rectangle(
+                        i as f32 * x_offset,
+                        j as f32 * y_offset,
+                        x_offset,
+                        y_offset,
+                        BLACK,
+                    );
                 }
             }
             println!();

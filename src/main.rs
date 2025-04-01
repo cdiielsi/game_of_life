@@ -1,16 +1,20 @@
 use gol::GameOfLife;
-use std::{thread, time};
+use macroquad::prelude::*;
 
 mod gol;
 
-fn main() {
-    let mut gol = GameOfLife::new(5, 5);
-    gol.print();
-    for i in 0..10 {
-        thread::sleep(time::Duration::from_millis(1000));
-        print!("{esc}c", esc = 27 as char);
-        println!("Transicion: {i}");
+const WIDTH: usize = 5;
+const HEIGHT: usize = 5;
+
+#[macroquad::main("BasicShapes")]
+async fn main() {
+    let mut gol = GameOfLife::new(WIDTH, HEIGHT);
+    loop {
+        clear_background(WHITE);
+
+        gol.draw_gol_board();
         gol.transition();
-        gol.print();
+
+        next_frame().await
     }
 }
