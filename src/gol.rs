@@ -1,4 +1,4 @@
-use std::{cmp::{self, min}, collections::HashSet};
+use std::{cmp::min, collections::HashSet};
 
 /// Implementation of game of life. The struct has two field for the boards dimentions and anotherone to register
 /// the living cells. After each transition this set is updated with the resulting living cells.
