@@ -1,4 +1,4 @@
-use std::{cmp, collections::HashSet};
+use std::{cmp::{self, min}, collections::HashSet};
 
 /// Implementation of game of life. The struct has two field for the boards dimentions and anotherone to register
 /// the living cells. After each transition this set is updated with the resulting living cells.
@@ -14,6 +14,7 @@ impl GameOfLife {
     /// D A D D
     /// D A D D
     /// D A D D
+    /// If size is smaller than 3x3 the board created has no living cells.
     pub fn new(width: usize, height: usize) -> Self {
         let mut alive_cells = HashSet::new();
         if width > 2 && height > 2 {
@@ -79,10 +80,14 @@ impl GameOfLife {
             (_, true) => cell_component,
         };
         let end_range = match (cell_component).overflowing_add(2) {
-            // cell_component is supposed to work as an index either in the range 0..width or the range 0..height, so it can't overflow by 1 because that means width or height already can't be represented as usize.
-            (n, false) => cmp::min(n, limit),
-            (_, true) => cell_component,
+            (n, false) => min(n,limit),
+            (_, true) => limit,
         };
+        // cell_component is supposed to work as an index either in the range 0..width or the range 0..height,
+        // in that sense start_range should be an inclusive bound and end_range should be an exclusive bound.
+        // If cell_component + 2 overflows, it means that limit = usize::MAX and cell_component = usize::MAX - 1,
+        // so end_range should be limit.
+
         (start_range, end_range)
     }
 
@@ -107,10 +112,10 @@ impl GameOfLife {
 mod tests {
     use super::*;
     #[test]
-    fn range_for_neighbourhood_for_5x5_board() {
+    fn range_of_neighbourhood_for_5x5_board() {
         let gol = GameOfLife::new(5, 5);
 
-        let mut current_cell = (0, 0);
+        let mut current_cell = (0, 0); // This test covers case of underflow
         let (x_star, x_end) = gol.get_range_for_neighbourhood(current_cell.0, gol.width);
         let (y_star, y_end) = gol.get_range_for_neighbourhood(current_cell.1, gol.height);
         assert_eq!(x_star, 0);
@@ -119,20 +124,33 @@ mod tests {
         assert_eq!(y_end, 2);
 
         current_cell = (2, 2);
-        let (x_star, x_end) = gol.get_range_for_neighbourhood(current_cell.0, gol.width);
-        let (y_star, y_end) = gol.get_range_for_neighbourhood(current_cell.1, gol.height);
-        assert_eq!(x_star, 1);
+        let (x_start, x_end) = gol.get_range_for_neighbourhood(current_cell.0, gol.width);
+        let (y_start, y_end) = gol.get_range_for_neighbourhood(current_cell.1, gol.height);
+        assert_eq!(x_start, 1);
         assert_eq!(x_end, 4);
-        assert_eq!(y_star, 1);
+        assert_eq!(y_start, 1);
         assert_eq!(y_end, 4);
 
         current_cell = (4, 4);
-        let (x_star, x_end) = gol.get_range_for_neighbourhood(current_cell.0, gol.width);
-        let (y_star, y_end) = gol.get_range_for_neighbourhood(current_cell.1, gol.height);
-        assert_eq!(x_star, 3);
+        let (x_start, x_end) = gol.get_range_for_neighbourhood(current_cell.0, gol.width);
+        let (y_start, y_end) = gol.get_range_for_neighbourhood(current_cell.1, gol.height);
+        assert_eq!(x_start, 3);
         assert_eq!(x_end, 5);
-        assert_eq!(y_star, 3);
+        assert_eq!(y_start, 3);
         assert_eq!(y_end, 5);
+    }
+
+    #[test]
+    fn range_of_neighbourhood_overflow_case() {
+        let gol = GameOfLife::new(usize::MAX, usize::MAX);
+
+        let current_cell = (usize::MAX-1, usize::MAX-1); // This test covers case of overflow
+        let (x_start, x_end) = gol.get_range_for_neighbourhood(current_cell.0, gol.width);
+        let (y_start, y_end) = gol.get_range_for_neighbourhood(current_cell.1, gol.height);
+        assert_eq!(x_start, usize::MAX-2);
+        assert_eq!(x_end, usize::MAX);
+        assert_eq!(y_start, usize::MAX-2);
+        assert_eq!(y_end, usize::MAX);
     }
 
     #[test]
