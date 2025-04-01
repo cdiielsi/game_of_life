@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{cmp, collections::HashSet};
 
 /// Implementation of game of life. The struct has two field for the boards dimentions and anotherone to register
 /// the living cells. After each transition this set is updated with the resulting living cells.
@@ -58,10 +58,10 @@ impl GameOfLife {
     ) {
         let (x, y) = current_cell;
         let mut neighbours = 0;
-        let (x_star, x_end) = self.get_range_for_neighbourhood(current_cell.0, self.width);
-        let (y_star, y_end) = self.get_range_for_neighbourhood(current_cell.1, self.height);
-        for i in x_star..x_end {
-            for j in y_star..y_end {
+        let (x_start, x_end) = self.get_range_for_neighbourhood(current_cell.0, self.width);
+        let (y_start, y_end) = self.get_range_for_neighbourhood(current_cell.1, self.height);
+        for i in x_start..x_end {
+            for j in y_start..y_end {
                 if self.alive_cells.contains(&(i, j)) && (i, j) != (x, y) {
                     neighbours += 1;
                 }
@@ -79,13 +79,8 @@ impl GameOfLife {
             (_, true) => cell_component,
         };
         let end_range = match (cell_component).overflowing_add(2) {
-            (n, false) => {
-                if n >= limit {
-                    limit
-                } else {
-                    n
-                }
-            }
+            // cell_component is supposed to work as an index either in the range 0..width or the range 0..height, so it can't overflow by 1 because that means width or height already can't be represented as usize.
+            (n, false) => cmp::min(n, limit),
             (_, true) => cell_component,
         };
         (start_range, end_range)
