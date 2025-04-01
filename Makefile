@@ -1,8 +1,8 @@
 build:
-	cargo build 
+	cargo build --verbose
 
 run:
 	cargo run 
 
 test:
-	cargo test
+	cargo test --verbose
