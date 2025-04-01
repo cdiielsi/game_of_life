@@ -18,8 +18,8 @@ async fn main() {
         gol.draw_gol_board();
 
         if is_key_pressed(KeyCode::Space) {
-                game_of_life_go = !game_of_life_go;
-        } 
+            game_of_life_go = !game_of_life_go;
+        }
 
         if game_of_life_go && get_time() - last_update > speed {
             last_update = get_time();
