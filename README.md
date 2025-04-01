@@ -2,7 +2,7 @@
 This is an implementation of Conway's Game of Life in rust. 
 
 ## What is the Game of Life?
-Conway's Game of Life is a zero-player game devised by the British mathematician John Horton Conway in 1970. The game follows the transition of 2-dimentional celular automaton throughout different stages following a set of rules across a grid of square cells. The automaton being represented by a group of cells marked as "alive". 
+Conway's Game of Life is a zero-player game devised by the British mathematician John Horton Conway in 1970. The game follows the transition of 2-dimentional celular automaton throughout different stages according a set of rules across a grid of square cells. The automaton being represented by a group of cells marked as "alive". 
 
 One interacts with the Game of Life only by creating an initial configuration and observing how it evolves. This evolution depends on the neighbourhood of each single cell (meaning its surrounding cells), and how many of this neighbours are "dead" or "alive". More specifically, the evolution goes by the following rules:
 - Any live cell with fewer than two live neighbours dies, as if by underpopulation.
