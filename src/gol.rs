@@ -89,42 +89,25 @@ impl GameOfLife {
         (start_range, end_range)
     }
 
-    /// Prints the board on console.
-    /// Black square => alive cell.
-    /// White square => dead cell.
-    /*
-    pub fn print(&self) {
-        for i in 0..self.width {
-            for j in 0..self.height {
-                if self.alive_cells.contains(&(i, j)) {
-                    print!("⬛");
-                } else {
-                    print!("⬜");
-                }
-            }
-            println!();
-        }
-    }
-    */
     pub fn draw_gol_board(&self) {
-        let x_offset = screen_width() / self.width as f32;
-        let y_offset = screen_height() / self.height as f32;
+        let x_padding = screen_width() / self.width as f32;
+        let y_padding = screen_height() / self.height as f32;
         for i in 0..self.width {
             for j in 0..self.height {
                 if self.alive_cells.contains(&(i, j)) {
                     draw_rectangle(
-                        (i as f32 * x_offset) + 1.0,
-                        (j as f32 * y_offset) + 1.0,
-                        x_offset - 1.0,
-                        y_offset - 1.0,
+                        (i as f32 * x_padding) + 1.0,
+                        (j as f32 * y_padding) + 1.0,
+                        x_padding - 1.0,
+                        y_padding - 1.0,
                         BLACK,
                     );
                 } else {
                     draw_rectangle(
-                        (i as f32 * x_offset) + 1.0,
-                        (j as f32 * y_offset) + 1.0,
-                        x_offset - 1.0,
-                        y_offset - 1.0,
+                        (i as f32 * x_padding) + 1.0,
+                        (j as f32 * y_padding) + 1.0,
+                        x_padding - 1.0,
+                        y_padding - 1.0,
                         WHITE,
                     );
                 }
@@ -133,27 +116,27 @@ impl GameOfLife {
     }
 
     pub fn draw_or_drop_new_cell(&mut self, position: (f32, f32)) {
-        let x_offset = screen_width() / self.width as f32;
-        let y_offset = screen_height() / self.height as f32;
-        let x_position = (position.0 / x_offset) as usize;
-        let y_position = (position.1 / y_offset) as usize;
+        let x_padding = screen_width() / self.width as f32;
+        let y_padding = screen_height() / self.height as f32;
+        let x_position = (position.0 / x_padding) as usize;
+        let y_position = (position.1 / y_padding) as usize;
 
         if self.alive_cells.contains(&(x_position, y_position)) {
             self.alive_cells.remove(&(x_position, y_position));
             draw_rectangle(
-                (x_position as f32 * x_offset) + 1.0,
-                (y_position as f32 * y_offset) + 1.0,
-                x_offset - 1.0,
-                y_offset - 1.0,
+                (x_position as f32 * x_padding) + 1.0,
+                (y_position as f32 * y_padding) + 1.0,
+                x_padding - 1.0,
+                y_padding - 1.0,
                 WHITE,
             );
         } else {
             self.add_living_cell((x_position, y_position));
             draw_rectangle(
-                (x_position as f32 * x_offset) + 1.0,
-                (y_position as f32 * y_offset) + 1.0,
-                x_offset - 1.0,
-                y_offset - 1.0,
+                (x_position as f32 * x_padding) + 1.0,
+                (y_position as f32 * y_padding) + 1.0,
+                x_padding - 1.0,
+                y_padding - 1.0,
                 BLACK,
             );
         }
