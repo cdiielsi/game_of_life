@@ -1,4 +1,4 @@
-use gol::GameOfLife;
+use gol::{GameOfLife,insert_3_cell_line_patter_top_left_corner,insert_square_patter_top_left_corner};
 use macroquad::prelude::*;
 
 mod gol;
@@ -11,6 +11,7 @@ async fn main() {
     let speed = 0.3;
     let mut last_update = get_time();
     let mut gol = GameOfLife::new(WIDTH, HEIGHT);
+    insert_3_cell_line_patter_top_left_corner(&mut gol);
     let mut game_of_life_go = true;
     loop {
         clear_background(WHITE);

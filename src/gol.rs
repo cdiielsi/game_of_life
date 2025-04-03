@@ -10,31 +10,20 @@ pub struct GameOfLife {
 }
 
 impl GameOfLife {
-    /// Creates an instance of a Game of Life having the following pattern on the top left corner of the board
-    /// if the size is equal or bigger than 3x3:
-    /// D A D D
-    /// D A D D
-    /// D A D D
-    /// if the size of the board is usize::MAX x usize::MAX the bottom right corner of the board has a square pattern
-    /// as well, this is for testing purposes.
-    /// If size is smaller than 3x3 the board created has no living cells.
+    /// Creates an instance of a Game of Life with an empty set of alive cells and the dimentions of the board.
     pub fn new(width: usize, height: usize) -> Self {
-        let mut alive_cells = HashSet::new();
-        if width > 2 && height > 2 {
-            alive_cells.insert((0, 1));
-            alive_cells.insert((1, 1));
-            alive_cells.insert((2, 1));
-            if width == usize::MAX && height == usize::MAX {
-                alive_cells.insert((usize::MAX - 1, usize::MAX - 1));
-                alive_cells.insert((usize::MAX - 2, usize::MAX - 1));
-                alive_cells.insert((usize::MAX - 2, usize::MAX - 2));
-                alive_cells.insert((usize::MAX - 1, usize::MAX - 2));
-            }
-        }
+        let alive_cells = HashSet::new();
         Self {
             width,
             height,
             alive_cells,
+        }
+    }
+    /// Adds a cell to the alive cells set.
+    /// TODO: handle coordinates outiside the boards range with error
+    pub fn add_living_cell(&mut self,cell_coordinates:(usize,usize)){
+        if cell_coordinates.0 < self.width && cell_coordinates.1 < self.height{
+            self.alive_cells.insert(cell_coordinates);
         }
     }
 
@@ -136,13 +125,32 @@ impl GameOfLife {
     }
 }
 
+
+pub fn insert_3_cell_line_patter_top_left_corner(gol: &mut GameOfLife){
+    if gol.width > 2 && gol.height > 2 {
+        gol.add_living_cell((0, 1));
+        gol.add_living_cell((1, 1));
+        gol.add_living_cell((2, 1));
+    }
+}
+
+pub fn insert_square_patter_top_left_corner(gol: &mut GameOfLife){
+    if gol.width > 1 && gol.height > 1 {
+        gol.add_living_cell((gol.width - 1, gol.height - 1));
+        gol.add_living_cell((gol.width - 2, gol.height - 1));
+        gol.add_living_cell((gol.width- 2, gol.height - 2));
+        gol.add_living_cell((gol.width - 1, gol.height - 2));
+    }
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn range_of_neighbourhood_for_5x5_board() {
-        let gol = GameOfLife::new(5, 5);
-
+        let mut gol = GameOfLife::new(5, 5);
+        insert_3_cell_line_patter_top_left_corner(&mut gol);
         let mut current_cell = (0, 0); // This test covers case of underflow
         let (x_star, x_end) = gol.get_range_for_neighbourhood(current_cell.0, gol.width);
         let (y_star, y_end) = gol.get_range_for_neighbourhood(current_cell.1, gol.height);
@@ -170,7 +178,9 @@ mod tests {
 
     #[test]
     fn range_of_neighbourhood_overflow_case() {
-        let gol = GameOfLife::new(usize::MAX, usize::MAX);
+        let mut gol = GameOfLife::new(usize::MAX, usize::MAX);
+        insert_3_cell_line_patter_top_left_corner(&mut gol);
+        insert_square_patter_top_left_corner(&mut gol);
 
         let current_cell = (usize::MAX - 1, usize::MAX - 1); // This test covers case of overflow
         let (x_start, x_end) = gol.get_range_for_neighbourhood(current_cell.0, gol.width);
@@ -191,7 +201,8 @@ mod tests {
     /// D D D D D
     /// So the living cells are (0,1), (1,1), (2,1)
     fn process_cell_for_5x5_board() {
-        let gol = GameOfLife::new(5, 5);
+        let mut gol = GameOfLife::new(5, 5);
+        insert_3_cell_line_patter_top_left_corner(&mut gol);
         let mut new_alive_cells = HashSet::new();
 
         let current_cell = (0, 0); // Dead cell only has 2 living neighbours => stays dead.
@@ -221,7 +232,8 @@ mod tests {
     /// The board for this test has the usual cross pattern as the previous boards and also has a square pattern at the
     /// bottom right corner, this pattern is constant.
     fn process_cell_for_overflow_case() {
-        let gol = GameOfLife::new(usize::MAX, usize::MAX);
+        let mut gol = GameOfLife::new(usize::MAX, usize::MAX);
+        insert_square_patter_top_left_corner(&mut gol);
         let mut new_alive_cells = HashSet::new();
 
         let current_cell = (usize::MAX - 1, usize::MAX - 1); // Alive cell has 3 living neighbours => stays alive.
@@ -266,6 +278,7 @@ mod tests {
     /// And then back again to the original disposition
     fn transition() {
         let mut gol = GameOfLife::new(5, 5);
+        insert_3_cell_line_patter_top_left_corner(&mut gol);
         gol.transition();
         assert_eq!(gol.alive_cells.len(), 3);
         assert!(gol.alive_cells.contains(&(1, 0)));
