@@ -1,4 +1,4 @@
-use std::{cmp::{self, min}, collections::HashSet};
+use std::{cmp::min, collections::HashSet};
 
 /// Implementation of game of life. The struct has two field for the boards dimentions and anotherone to register
 /// the living cells. After each transition this set is updated with the resulting living cells.
@@ -23,11 +23,11 @@ impl GameOfLife {
             alive_cells.insert((0, 1));
             alive_cells.insert((1, 1));
             alive_cells.insert((2, 1));
-            if width == usize::MAX && height == usize::MAX{
-                alive_cells.insert((usize::MAX-1, usize::MAX-1));
-                alive_cells.insert((usize::MAX-2, usize::MAX-1));
-                alive_cells.insert((usize::MAX-2, usize::MAX-2));
-                alive_cells.insert((usize::MAX-1, usize::MAX-2));
+            if width == usize::MAX && height == usize::MAX {
+                alive_cells.insert((usize::MAX - 1, usize::MAX - 1));
+                alive_cells.insert((usize::MAX - 2, usize::MAX - 1));
+                alive_cells.insert((usize::MAX - 2, usize::MAX - 2));
+                alive_cells.insert((usize::MAX - 1, usize::MAX - 2));
             }
         }
         Self {
@@ -88,7 +88,7 @@ impl GameOfLife {
             (_, true) => cell_component,
         };
         let end_range = match (cell_component).overflowing_add(2) {
-            (n, false) => min(n,limit),
+            (n, false) => min(n, limit),
             (_, true) => limit,
         };
         // cell_component is supposed to work as an index either in the range 0..width or the range 0..height,
@@ -152,12 +152,12 @@ mod tests {
     fn range_of_neighbourhood_overflow_case() {
         let gol = GameOfLife::new(usize::MAX, usize::MAX);
 
-        let current_cell = (usize::MAX-1, usize::MAX-1); // This test covers case of overflow
+        let current_cell = (usize::MAX - 1, usize::MAX - 1); // This test covers case of overflow
         let (x_start, x_end) = gol.get_range_for_neighbourhood(current_cell.0, gol.width);
         let (y_start, y_end) = gol.get_range_for_neighbourhood(current_cell.1, gol.height);
-        assert_eq!(x_start, usize::MAX-2);
+        assert_eq!(x_start, usize::MAX - 2);
         assert_eq!(x_end, usize::MAX);
-        assert_eq!(y_start, usize::MAX-2);
+        assert_eq!(y_start, usize::MAX - 2);
         assert_eq!(y_end, usize::MAX);
     }
 
@@ -204,25 +204,25 @@ mod tests {
         let gol = GameOfLife::new(usize::MAX, usize::MAX);
         let mut new_alive_cells = HashSet::new();
 
-        let current_cell = (usize::MAX-1, usize::MAX-1); // Alive cell has 3 living neighbours => stays alive.
+        let current_cell = (usize::MAX - 1, usize::MAX - 1); // Alive cell has 3 living neighbours => stays alive.
         let current_cell_alive = false;
         gol.process_cell(&mut new_alive_cells, current_cell, current_cell_alive);
         assert_eq!(new_alive_cells.len(), 1);
         assert!(new_alive_cells.contains(&current_cell));
 
-        let current_cell = (usize::MAX-2, usize::MAX-1); // Alive cell only has 3 living neighbours => stays alive.
+        let current_cell = (usize::MAX - 2, usize::MAX - 1); // Alive cell only has 3 living neighbours => stays alive.
         let current_cell_alive = true;
         gol.process_cell(&mut new_alive_cells, current_cell, current_cell_alive);
         assert_eq!(new_alive_cells.len(), 2);
         assert!(new_alive_cells.contains(&current_cell));
 
-        let current_cell = (usize::MAX-1, usize::MAX-2); // Alive cell has 3 living neighbours => stays alive.
+        let current_cell = (usize::MAX - 1, usize::MAX - 2); // Alive cell has 3 living neighbours => stays alive.
         let current_cell_alive = true;
         gol.process_cell(&mut new_alive_cells, current_cell, current_cell_alive);
         assert_eq!(new_alive_cells.len(), 3);
         assert!(new_alive_cells.contains(&current_cell));
 
-        let current_cell = (usize::MAX-2, usize::MAX-2); // Alive cell has 3 living neighbours => stays alive.
+        let current_cell = (usize::MAX - 2, usize::MAX - 2); // Alive cell has 3 living neighbours => stays alive.
         let current_cell_alive = false;
         gol.process_cell(&mut new_alive_cells, current_cell, current_cell_alive);
         assert_eq!(new_alive_cells.len(), 4);
