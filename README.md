@@ -14,7 +14,11 @@ One interacts with the Game of Life only by creating an initial configuration an
 
 - To run the project, run:
 ```
-make run
+make
+```
+- To build the project, run:
+```
+make build
 ```
 - To run the tests, run:
 ```
