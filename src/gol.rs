@@ -21,8 +21,8 @@ impl GameOfLife {
     }
     /// Adds a cell to the alive cells set.
     /// TODO: handle coordinates outiside the boards range with error
-    pub fn add_living_cell(&mut self,cell_coordinates:(usize,usize)){
-        if cell_coordinates.0 < self.width && cell_coordinates.1 < self.height{
+    pub fn add_living_cell(&mut self, cell_coordinates: (usize, usize)) {
+        if cell_coordinates.0 < self.width && cell_coordinates.1 < self.height {
             self.alive_cells.insert(cell_coordinates);
         }
     }
@@ -90,8 +90,9 @@ impl GameOfLife {
     }
 
     /// Prints the board on console.
-    /// Green square => alive cell.
-    /// Black square => dead cell.
+    /// Black square => alive cell.
+    /// White square => dead cell.
+    /*
     pub fn print(&self) {
         for i in 0..self.width {
             for j in 0..self.height {
@@ -104,7 +105,7 @@ impl GameOfLife {
             println!();
         }
     }
-
+    */
     pub fn draw_gol_board(&self) {
         let x_offset = screen_width() / self.width as f32;
         let y_offset = screen_height() / self.height as f32;
@@ -112,36 +113,54 @@ impl GameOfLife {
             for j in 0..self.height {
                 if self.alive_cells.contains(&(i, j)) {
                     draw_rectangle(
-                        i as f32 * x_offset,
-                        j as f32 * y_offset,
-                        x_offset,
-                        y_offset,
+                        (i as f32 * x_offset) + 1.0,
+                        (j as f32 * y_offset) + 1.0,
+                        x_offset - 1.0,
+                        y_offset - 1.0,
                         BLACK,
+                    );
+                } else {
+                    draw_rectangle(
+                        (i as f32 * x_offset) + 1.0,
+                        (j as f32 * y_offset) + 1.0,
+                        x_offset - 1.0,
+                        y_offset - 1.0,
+                        WHITE,
                     );
                 }
             }
         }
     }
 
-    pub fn draw_new_cell(&mut self, position:(f32,f32)){
+    pub fn draw_or_drop_new_cell(&mut self, position: (f32, f32)) {
         let x_offset = screen_width() / self.width as f32;
         let y_offset = screen_height() / self.height as f32;
-        let x_position = (position.0/x_offset) as usize;
-        let y_position = (position.1/y_offset) as usize;
+        let x_position = (position.0 / x_offset) as usize;
+        let y_position = (position.1 / y_offset) as usize;
 
-        self.add_living_cell((x_position,y_position));
-        draw_rectangle(
-            x_position as f32 * x_offset,
-            y_position as f32 * y_offset,
-            x_offset,
-            y_offset,
-            BLACK,
-        );
+        if self.alive_cells.contains(&(x_position, y_position)) {
+            self.alive_cells.remove(&(x_position, y_position));
+            draw_rectangle(
+                (x_position as f32 * x_offset) + 1.0,
+                (y_position as f32 * y_offset) + 1.0,
+                x_offset - 1.0,
+                y_offset - 1.0,
+                WHITE,
+            );
+        } else {
+            self.add_living_cell((x_position, y_position));
+            draw_rectangle(
+                (x_position as f32 * x_offset) + 1.0,
+                (y_position as f32 * y_offset) + 1.0,
+                x_offset - 1.0,
+                y_offset - 1.0,
+                BLACK,
+            );
+        }
     }
 }
 
-
-pub fn insert_3_cell_line_patter_top_left_corner(gol: &mut GameOfLife){
+pub fn insert_3_cell_line_patter_top_left_corner(gol: &mut GameOfLife) {
     if gol.width > 2 && gol.height > 2 {
         gol.add_living_cell((0, 1));
         gol.add_living_cell((1, 1));
@@ -149,15 +168,24 @@ pub fn insert_3_cell_line_patter_top_left_corner(gol: &mut GameOfLife){
     }
 }
 
-pub fn insert_square_patter_top_left_corner(gol: &mut GameOfLife){
+pub fn insert_square_patter_top_left_corner(gol: &mut GameOfLife) {
     if gol.width > 1 && gol.height > 1 {
         gol.add_living_cell((gol.width - 1, gol.height - 1));
         gol.add_living_cell((gol.width - 2, gol.height - 1));
-        gol.add_living_cell((gol.width- 2, gol.height - 2));
+        gol.add_living_cell((gol.width - 2, gol.height - 2));
         gol.add_living_cell((gol.width - 1, gol.height - 2));
     }
 }
 
+pub fn insert_glider_patter_middle(gol: &mut GameOfLife) {
+    if gol.width > 2 && gol.height > 2 {
+        gol.add_living_cell((gol.width / 2, gol.height / 2 + 1));
+        gol.add_living_cell((gol.width / 2 + 1, gol.height / 2 + 2));
+        gol.add_living_cell((gol.width / 2 + 1, gol.height / 2 + 3));
+        gol.add_living_cell((gol.width / 2 + 2, gol.height / 2 + 2));
+        gol.add_living_cell((gol.width / 2 + 2, gol.height / 2 + 1));
+    }
+}
 
 #[cfg(test)]
 mod tests {

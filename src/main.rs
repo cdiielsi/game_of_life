@@ -1,4 +1,7 @@
-use gol::{GameOfLife,insert_3_cell_line_patter_top_left_corner,insert_square_patter_top_left_corner};
+use gol::{
+    GameOfLife, insert_3_cell_line_patter_top_left_corner, insert_glider_patter_middle,
+    insert_square_patter_top_left_corner,
+};
 use macroquad::prelude::*;
 
 mod gol;
@@ -13,9 +16,10 @@ async fn main() {
     let mut gol = GameOfLife::new(WIDTH, HEIGHT);
     insert_3_cell_line_patter_top_left_corner(&mut gol);
     insert_square_patter_top_left_corner(&mut gol);
+    insert_glider_patter_middle(&mut gol);
     let mut game_of_life_go = true;
     loop {
-        clear_background(WHITE);
+        clear_background(LIGHTGRAY);
 
         gol.draw_gol_board();
 
@@ -23,11 +27,9 @@ async fn main() {
             game_of_life_go = !game_of_life_go;
         }
 
-        if !game_of_life_go {
-            if is_mouse_button_pressed(MouseButton::Left){
-                let position = mouse_position();
-                gol.draw_new_cell(position);
-            }
+        if !game_of_life_go && is_mouse_button_pressed(MouseButton::Left) {
+            let position = mouse_position();
+            gol.draw_or_drop_new_cell(position);
         }
 
         if game_of_life_go && get_time() - last_update > speed {
