@@ -3,8 +3,8 @@ use macroquad::prelude::*;
 
 mod gol;
 
-const WIDTH: usize = 5;
-const HEIGHT: usize = 5;
+const WIDTH: usize = 50;
+const HEIGHT: usize = 50;
 
 #[macroquad::main("BasicShapes")]
 async fn main() {
@@ -12,6 +12,7 @@ async fn main() {
     let mut last_update = get_time();
     let mut gol = GameOfLife::new(WIDTH, HEIGHT);
     insert_3_cell_line_patter_top_left_corner(&mut gol);
+    insert_square_patter_top_left_corner(&mut gol);
     let mut game_of_life_go = true;
     loop {
         clear_background(WHITE);
@@ -20,6 +21,13 @@ async fn main() {
 
         if is_key_pressed(KeyCode::Space) {
             game_of_life_go = !game_of_life_go;
+        }
+
+        if !game_of_life_go {
+            if is_mouse_button_pressed(MouseButton::Left){
+                let position = mouse_position();
+                gol.draw_new_cell(position);
+            }
         }
 
         if game_of_life_go && get_time() - last_update > speed {

@@ -120,8 +120,23 @@ impl GameOfLife {
                     );
                 }
             }
-            println!();
         }
+    }
+
+    pub fn draw_new_cell(&mut self, position:(f32,f32)){
+        let x_offset = screen_width() / self.width as f32;
+        let y_offset = screen_height() / self.height as f32;
+        let x_position = (position.0/x_offset) as usize;
+        let y_position = (position.1/y_offset) as usize;
+
+        self.add_living_cell((x_position,y_position));
+        draw_rectangle(
+            x_position as f32 * x_offset,
+            y_position as f32 * y_offset,
+            x_offset,
+            y_offset,
+            BLACK,
+        );
     }
 }
 

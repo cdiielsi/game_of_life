@@ -1,5 +1,5 @@
 build:
-	cargo build --verbose
+	cargo build
 
 run:
 	cargo run 
