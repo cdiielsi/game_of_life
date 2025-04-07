@@ -59,7 +59,7 @@ impl GameOfLife {
         } else {
             self.add_living_cell(cell)?
         }
-        return Ok(());
+        Ok(())
     }
 
     /// Updates alive_cell field with the new living cells.
@@ -111,15 +111,14 @@ impl GameOfLife {
             (n, false) => n,
             (_, true) => cell_component,
         };
-        let end_range = match (cell_component).overflowing_add(2) {
-            (n, false) => min(n, limit),
-            (_, true) => limit,
-        };
         // cell_component is supposed to work as an index either in the range 0..width or the range 0..height,
         // in that sense start_range should be an inclusive bound and end_range should be an exclusive bound.
         // If cell_component + 2 overflows, it means that limit = usize::MAX and cell_component = usize::MAX - 1,
         // so end_range should be limit.
-
+        let end_range = match (cell_component).overflowing_add(2) {
+            (n, false) => min(n, limit),
+            (_, true) => limit,
+        };
         (start_range, end_range)
     }
 }
