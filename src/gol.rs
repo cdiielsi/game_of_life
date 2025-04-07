@@ -1,5 +1,4 @@
 use macroquad::prelude::*;
-use std::error::Error;
 use std::{cmp::min, collections::HashSet};
 
 /// Implementation of game of life. The struct has two fields for the boards dimentions and another one that
@@ -13,9 +12,9 @@ pub struct GameOfLife {
 
 /// Cell is a strcut with two fields that reference the cell's coordinates on the board.
 #[derive(Eq, Hash, PartialEq, Copy, Clone)]
-struct Cell {
-    x: usize,
-    y: usize,
+pub struct Cell {
+    pub x: usize,
+    pub y: usize,
 }
 #[derive(PartialEq, Debug)]
 pub enum GolErrors {
@@ -31,9 +30,22 @@ impl GameOfLife {
             alive_cells: HashSet::new(),
         }
     }
+
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    pub fn height(&self) -> usize {
+        self.height
+    }
+
+    pub fn is_alive_cell(&self, cell: &Cell) -> bool {
+        self.alive_cells.contains(cell)
+    }
+
     /// Adds a cell to the alive cells set.
     /// TODO: handle coordinates outiside the boards range with error
-    fn add_living_cell(&mut self, cell: Cell) -> Result<(), GolErrors> {
+    pub fn add_living_cell(&mut self, cell: Cell) -> Result<(), GolErrors> {
         if cell.x < self.width && cell.y < self.height {
             self.alive_cells.insert(cell);
             return Ok(());
@@ -63,7 +75,7 @@ impl GameOfLife {
     /// - Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
     fn cell_next_state_is_alive(&self, current_cell: &Cell) -> bool {
         let neighbours = self.count_cell_living_neighbours(current_cell);
-        if neighbours == 3 || self.alive_cells.contains(current_cell) && neighbours == 2 {
+        if neighbours == 3 || self.is_alive_cell(current_cell) && neighbours == 2 {
             return true;
         }
         false
@@ -76,7 +88,7 @@ impl GameOfLife {
         for x in x_start..x_end {
             for y in y_start..y_end {
                 let neighbour_cell = Cell { x, y };
-                if self.alive_cells.contains(&neighbour_cell) && neighbour_cell != *current_cell {
+                if self.is_alive_cell(&neighbour_cell) && neighbour_cell != *current_cell {
                     neighbours += 1;
                 }
             }
@@ -100,64 +112,6 @@ impl GameOfLife {
         // so end_range should be limit.
 
         (start_range, end_range)
-    }
-
-    pub fn draw_gol_board(&self) {
-        let x_padding = screen_width() / self.width as f32;
-        let y_padding = screen_height() / self.height as f32;
-        for i in 0..self.width {
-            for j in 0..self.height {
-                let current_cell = Cell { x: i, y: j };
-                if self.alive_cells.contains(&current_cell) {
-                    draw_rectangle(
-                        (i as f32 * x_padding) + 1.0,
-                        (j as f32 * y_padding) + 1.0,
-                        x_padding - 1.0,
-                        y_padding - 1.0,
-                        BLACK,
-                    );
-                } else {
-                    draw_rectangle(
-                        (i as f32 * x_padding) + 1.0,
-                        (j as f32 * y_padding) + 1.0,
-                        x_padding - 1.0,
-                        y_padding - 1.0,
-                        WHITE,
-                    );
-                }
-            }
-        }
-    }
-
-    pub fn toggle_cell(&mut self, position: (f32, f32)) {
-        let x_padding = screen_width() / self.width as f32;
-        let y_padding = screen_height() / self.height as f32;
-        let x_position = (position.0 / x_padding) as usize;
-        let y_position = (position.1 / y_padding) as usize;
-
-        let current_cell = Cell {
-            x: x_position,
-            y: y_position,
-        };
-        if self.alive_cells.contains(&current_cell) {
-            self.alive_cells.remove(&current_cell);
-            draw_rectangle(
-                (x_position as f32 * x_padding) + 1.0,
-                (y_position as f32 * y_padding) + 1.0,
-                x_padding - 1.0,
-                y_padding - 1.0,
-                WHITE,
-            );
-        } else {
-            self.add_living_cell(current_cell);
-            draw_rectangle(
-                (x_position as f32 * x_padding) + 1.0,
-                (y_position as f32 * y_padding) + 1.0,
-                x_padding - 1.0,
-                y_padding - 1.0,
-                BLACK,
-            );
-        }
     }
 }
 
@@ -222,9 +176,9 @@ pub fn insert_glider_patter_middle(gol: &mut GameOfLife) -> Result<(), GolErrors
 mod tests {
     use super::*;
     #[test]
-    fn range_of_neighbourhood_for_5x5_board() {
+    fn range_of_neighbourhood_for_5x5_board() -> Result<(), GolErrors> {
         let mut gol = GameOfLife::new(5, 5);
-        insert_3_cell_line_patter_top_left_corner(&mut gol);
+        insert_3_cell_line_patter_top_left_corner(&mut gol)?;
         let mut current_cell = Cell { x: 0, y: 0 }; // This test covers case of underflow
         let (x_star, x_end) = gol.get_range_for_neighbourhood(current_cell.x, gol.width);
         let (y_star, y_end) = gol.get_range_for_neighbourhood(current_cell.y, gol.height);
@@ -248,13 +202,14 @@ mod tests {
         assert_eq!(x_end, 5);
         assert_eq!(y_start, 3);
         assert_eq!(y_end, 5);
+        Ok(())
     }
 
     #[test]
-    fn range_of_neighbourhood_overflow_case() {
+    fn range_of_neighbourhood_overflow_case() -> Result<(), GolErrors> {
         let mut gol = GameOfLife::new(usize::MAX, usize::MAX);
-        insert_3_cell_line_patter_top_left_corner(&mut gol);
-        insert_square_patter_top_left_corner(&mut gol);
+        insert_3_cell_line_patter_top_left_corner(&mut gol)?;
+        insert_square_patter_top_left_corner(&mut gol)?;
 
         let current_cell = Cell {
             x: usize::MAX - 1,
@@ -266,6 +221,7 @@ mod tests {
         assert_eq!(x_end, usize::MAX);
         assert_eq!(y_start, usize::MAX - 2);
         assert_eq!(y_end, usize::MAX);
+        Ok(())
     }
 
     #[test]
@@ -277,9 +233,9 @@ mod tests {
     /// D D D D D
     /// D D D D D
     /// So the living cells are (0,1), (1,1), (2,1)
-    fn process_cell_for_5x5_board() {
+    fn process_cell_for_5x5_board() -> Result<(), GolErrors> {
         let mut gol = GameOfLife::new(5, 5);
-        insert_3_cell_line_patter_top_left_corner(&mut gol);
+        insert_3_cell_line_patter_top_left_corner(&mut gol)?;
 
         let current_cell = Cell { x: 0, y: 0 }; // Dead cell only has 2 living neighbours => stays dead.
         assert_eq!(gol.count_cell_living_neighbours(&current_cell), 2);
@@ -296,14 +252,15 @@ mod tests {
         let current_cell = Cell { x: 1, y: 0 }; // Dead cell has 3 living neighbours => cell comes to life.
         assert_eq!(gol.count_cell_living_neighbours(&current_cell), 3);
         assert!(gol.cell_next_state_is_alive(&current_cell));
+        Ok(())
     }
 
     #[test]
     /// The board for this test has the usual cross pattern as the previous boards and also has a square pattern at the
     /// bottom right corner, this pattern is constant.
-    fn process_cell_for_overflow_case() {
+    fn process_cell_for_overflow_case() -> Result<(), GolErrors> {
         let mut gol = GameOfLife::new(usize::MAX, usize::MAX);
-        insert_square_patter_top_left_corner(&mut gol);
+        insert_square_patter_top_left_corner(&mut gol)?;
 
         let current_cell = Cell {
             x: usize::MAX - 1,
@@ -332,6 +289,7 @@ mod tests {
         }; // Alive cell has 3 living neighbours => stays alive.
         assert_eq!(gol.count_cell_living_neighbours(&current_cell), 3);
         assert!(gol.cell_next_state_is_alive(&current_cell));
+        Ok(())
     }
 
     #[test]
@@ -349,14 +307,15 @@ mod tests {
     /// D D D D D
     /// D D D D D
     /// And then back again to the original disposition
-    fn transition() {
+    fn transition() -> Result<(), GolErrors> {
         let mut gol = GameOfLife::new(5, 5);
-        insert_3_cell_line_patter_top_left_corner(&mut gol);
+        insert_3_cell_line_patter_top_left_corner(&mut gol)?;
         gol.transition();
         assert_eq!(gol.alive_cells.len(), 3);
         assert!(gol.alive_cells.contains(&Cell { x: 1, y: 0 }));
         assert!(gol.alive_cells.contains(&Cell { x: 1, y: 1 }));
         assert!(gol.alive_cells.contains(&Cell { x: 1, y: 2 }));
+        Ok(())
     }
 
     #[test]
