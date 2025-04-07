@@ -84,10 +84,7 @@ impl GameOfLife {
     /// - Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
     fn cell_next_state_is_alive(&self, current_cell: &Cell) -> bool {
         let neighbours = self.count_cell_living_neighbours(current_cell);
-        if neighbours == 3 || self.is_alive_cell(current_cell) && neighbours == 2 {
-            return true;
-        }
-        false
+        neighbours == 3 || self.is_alive_cell(current_cell) && neighbours == 2
     }
 
     fn count_cell_living_neighbours(&self, current_cell: &Cell) -> i32 {
