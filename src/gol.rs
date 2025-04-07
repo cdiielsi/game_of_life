@@ -115,40 +115,31 @@ impl GameOfLife {
     }
 }
 
-/// Inserts a vertical line pattern, the top cell being the position passed as a parameter.
-pub fn insert_3_cell_line_vertical_pattern(
+/// Inserts a vertical line pattern of any length, the top cell being the position passed as a parameter.
+pub fn insert_line_vertical_pattern(
     gol: &mut GameOfLife,
     position: Cell,
+    length:i32
 ) -> Result<(), GolErrors> {
-    if gol.width > 2 && gol.height > 2 {
-        gol.add_living_cell(position)?;
+    for i  in 0..length{
         gol.add_living_cell(Cell {
-            x: position.x + 1,
-            y: position.y,
-        })?;
-        gol.add_living_cell(Cell {
-            x: position.x + 2,
+            x: position.x + i as usize,
             y: position.y,
         })?;
     }
     Ok(())
 }
 
-/// Inserts a square pattern, the top left cell being the position passed as a parameter.
-pub fn insert_square_pattern(gol: &mut GameOfLife, position: Cell) -> Result<(), GolErrors> {
-    gol.add_living_cell(position)?;
-    gol.add_living_cell(Cell {
-        x: position.x,
-        y: position.y + 1,
-    })?;
-    gol.add_living_cell(Cell {
-        x: position.x + 1,
-        y: position.y,
-    })?;
-    gol.add_living_cell(Cell {
-        x: position.x + 1,
-        y: position.y + 1,
-    })?;
+/// Inserts a square pattern of size ixj, the top left cell being the position passed as a parameter.
+pub fn insert_square_pattern(gol: &mut GameOfLife, position: Cell, size: (usize,usize)) -> Result<(), GolErrors> {
+    for i in 0..size.0{
+        for j in 0..size.1{
+            gol.add_living_cell(Cell {
+                x: position.x + i,
+                y: position.y + j,
+            })?;
+        }
+    }
     Ok(())
 }
 
@@ -187,7 +178,7 @@ mod tests {
     #[test]
     fn range_of_neighbourhood_for_5x5_board() -> Result<(), GolErrors> {
         let mut gol = GameOfLife::new(5, 5);
-        insert_3_cell_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 })?;
+        insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 },3)?;
         let mut current_cell = Cell { x: 0, y: 0 }; // This test covers case of underflow
         let (x_star, x_end) = gol.get_range_for_neighbourhood(current_cell.x, gol.width);
         let (y_star, y_end) = gol.get_range_for_neighbourhood(current_cell.y, gol.height);
@@ -217,13 +208,14 @@ mod tests {
     #[test]
     fn range_of_neighbourhood_overflow_case() -> Result<(), GolErrors> {
         let mut gol = GameOfLife::new(usize::MAX, usize::MAX);
-        insert_3_cell_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 })?;
+        insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 },3)?;
         insert_square_pattern(
             &mut gol,
             Cell {
                 x: usize::MAX - 2,
                 y: usize::MAX - 2,
             },
+            (2,2)
         )?;
 
         let current_cell = Cell {
@@ -250,7 +242,7 @@ mod tests {
     /// So the living cells are (0,1), (1,1), (2,1)
     fn process_cell_for_5x5_board() -> Result<(), GolErrors> {
         let mut gol = GameOfLife::new(5, 5);
-        insert_3_cell_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 })?;
+        insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 },3)?;
 
         let current_cell = Cell { x: 0, y: 0 }; // Dead cell only has 2 living neighbours => stays dead.
         assert_eq!(gol.count_cell_living_neighbours(&current_cell), 2);
@@ -281,6 +273,7 @@ mod tests {
                 x: usize::MAX - 2,
                 y: usize::MAX - 2,
             },
+            (2,2)
         )?;
 
         let current_cell = Cell {
@@ -330,7 +323,7 @@ mod tests {
     /// And then back again to the original disposition
     fn transition() -> Result<(), GolErrors> {
         let mut gol = GameOfLife::new(5, 5);
-        insert_3_cell_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 })?;
+        insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 },3)?;
         gol.transition();
         assert_eq!(gol.alive_cells.len(), 3);
         assert!(gol.alive_cells.contains(&Cell { x: 1, y: 0 }));
