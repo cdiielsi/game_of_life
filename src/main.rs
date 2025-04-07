@@ -8,31 +8,31 @@ mod gol;
 
 const WIDTH: usize = 50;
 const HEIGHT: usize = 50;
+const SPEED: f64 = 0.3;
 
 #[macroquad::main("BasicShapes")]
 async fn main() {
-    let speed = 0.3;
     let mut last_update = get_time();
     let mut gol = GameOfLife::new(WIDTH, HEIGHT);
     insert_3_cell_line_patter_top_left_corner(&mut gol);
     insert_square_patter_top_left_corner(&mut gol);
     insert_glider_patter_middle(&mut gol);
-    let mut game_of_life_go = true;
+    let mut is_game_running = true;
     loop {
         clear_background(LIGHTGRAY);
 
         gol.draw_gol_board();
 
         if is_key_pressed(KeyCode::Space) {
-            game_of_life_go = !game_of_life_go;
+            is_game_running = !is_game_running;
         }
 
-        if !game_of_life_go && is_mouse_button_pressed(MouseButton::Left) {
+        if !is_game_running && is_mouse_button_pressed(MouseButton::Left) {
             let position = mouse_position();
-            gol.draw_or_drop_new_cell(position);
+            gol.toggle_cell(position);
         }
 
-        if game_of_life_go && get_time() - last_update > speed {
+        if is_game_running && get_time() - last_update > SPEED {
             last_update = get_time();
             gol.transition();
         }

@@ -5,4 +5,4 @@ build:
 	cargo build
 
 test:
-	cargo test --verbose
+	cargo test

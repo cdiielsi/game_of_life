@@ -35,6 +35,8 @@ As it turn out, this system achieves an impressive diversity of behavior, fluctu
 ## About this project
 This is an interactive implementation of the game of life where the user can modify an initial cell population and watch it evolve. The ```macroquad``` crate was used for the user interface. ```macroquad``` is a simple and easy way to use game library for the Rust programming language.
 
+When it comes to the implementation's design, I decided to use a HashSet to model the board and the game, and for the cells I also implemented a Cell struct. The idea is that the set contains the current living cells and with each evolution step, the set gets updated with the new living cells. I chose the HashSet because I considered that given the game's rule of "dying because of overpopulation" the amount of living cells tends to be small compared to the board's size, so the idea is to save space by only keeping track of the living cells with the set, especially in the case that in a new iteration of the project I make the board's size variable.
+
 ## Dependencies
 - rust 1.85.0
 - macroquad 0.4.14
