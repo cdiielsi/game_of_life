@@ -47,7 +47,7 @@ impl GameOfLife {
         for x in 0..self.width {
             for y in 0..self.height {
                 let current_cell = Cell { x, y };
-                if self.cell_next_state_is_alive(&current_cell){
+                if self.cell_next_state_is_alive(&current_cell) {
                     next_iteration_set.insert(current_cell);
                 }
             }
@@ -61,10 +61,7 @@ impl GameOfLife {
     /// - Any live cell with two or three live neighbours lives on to the next generation.
     /// - Any live cell with more than three live neighbours dies, as if by overpopulation.
     /// - Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-    fn cell_next_state_is_alive(
-        &self,
-        current_cell: &Cell,
-    )->bool {
+    fn cell_next_state_is_alive(&self, current_cell: &Cell) -> bool {
         let neighbours = self.count_cell_living_neighbours(current_cell);
         if neighbours == 3 || self.alive_cells.contains(current_cell) && neighbours == 2 {
             return true;
@@ -72,7 +69,7 @@ impl GameOfLife {
         false
     }
 
-    fn count_cell_living_neighbours(&self, current_cell: &Cell)->i32{
+    fn count_cell_living_neighbours(&self, current_cell: &Cell) -> i32 {
         let mut neighbours = 0;
         let (x_start, x_end) = self.get_range_for_neighbourhood(current_cell.x, self.width);
         let (y_start, y_end) = self.get_range_for_neighbourhood(current_cell.y, self.height);
@@ -285,19 +282,19 @@ mod tests {
         insert_3_cell_line_patter_top_left_corner(&mut gol);
 
         let current_cell = Cell { x: 0, y: 0 }; // Dead cell only has 2 living neighbours => stays dead.
-        assert_eq!(gol.count_cell_living_neighbours(&current_cell),2);
+        assert_eq!(gol.count_cell_living_neighbours(&current_cell), 2);
         assert!(!gol.cell_next_state_is_alive(&current_cell));
 
         let current_cell = Cell { x: 0, y: 1 }; // Alive cell only has 1 living neighbours => cell dies.
-        assert_eq!(gol.count_cell_living_neighbours(&current_cell),1);
+        assert_eq!(gol.count_cell_living_neighbours(&current_cell), 1);
         assert!(!gol.cell_next_state_is_alive(&current_cell));
 
         let current_cell = Cell { x: 1, y: 1 }; // Alive cell has 2 living neighbours => stays alive.
-        assert_eq!(gol.count_cell_living_neighbours(&current_cell),2);
+        assert_eq!(gol.count_cell_living_neighbours(&current_cell), 2);
         assert!(gol.cell_next_state_is_alive(&current_cell));
 
         let current_cell = Cell { x: 1, y: 0 }; // Dead cell has 3 living neighbours => cell comes to life.
-        assert_eq!(gol.count_cell_living_neighbours(&current_cell),3);
+        assert_eq!(gol.count_cell_living_neighbours(&current_cell), 3);
         assert!(gol.cell_next_state_is_alive(&current_cell));
     }
 
@@ -312,28 +309,28 @@ mod tests {
             x: usize::MAX - 1,
             y: usize::MAX - 1,
         }; // Alive cell has 3 living neighbours => stays alive.
-        assert_eq!(gol.count_cell_living_neighbours(&current_cell),3);
+        assert_eq!(gol.count_cell_living_neighbours(&current_cell), 3);
         assert!(gol.cell_next_state_is_alive(&current_cell));
 
         let current_cell = Cell {
             x: usize::MAX - 2,
             y: usize::MAX - 1,
         }; // Alive cell only has 3 living neighbours => stays alive.
-        assert_eq!(gol.count_cell_living_neighbours(&current_cell),3);
+        assert_eq!(gol.count_cell_living_neighbours(&current_cell), 3);
         assert!(gol.cell_next_state_is_alive(&current_cell));
 
         let current_cell = Cell {
             x: usize::MAX - 1,
             y: usize::MAX - 2,
         }; // Alive cell has 3 living neighbours => stays alive.
-        assert_eq!(gol.count_cell_living_neighbours(&current_cell),3);
+        assert_eq!(gol.count_cell_living_neighbours(&current_cell), 3);
         assert!(gol.cell_next_state_is_alive(&current_cell));
 
         let current_cell = Cell {
             x: usize::MAX - 2,
             y: usize::MAX - 2,
         }; // Alive cell has 3 living neighbours => stays alive.
-        assert_eq!(gol.count_cell_living_neighbours(&current_cell),3);
+        assert_eq!(gol.count_cell_living_neighbours(&current_cell), 3);
         assert!(gol.cell_next_state_is_alive(&current_cell));
     }
 
