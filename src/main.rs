@@ -1,5 +1,5 @@
 use gol::{
-    Cell, GameOfLife, GolErrors, insert_glider_pattern, insert_line_vertical_pattern,
+    Cell, GameOfLife, GolError, insert_glider_pattern, insert_line_vertical_pattern,
     insert_square_pattern,
 };
 use gol_gui::GolUI;
@@ -29,7 +29,7 @@ const LINE_PATTERN_SIZE: i32 = 3;
 const SQUARE_PATTERN_SIZE: (usize, usize) = (2, 2);
 
 #[macroquad::main("BasicShapes")]
-async fn main() -> Result<(), GolErrors> {
+async fn main() -> Result<(), GolError> {
     let mut last_update = get_time();
     let mut gol = GameOfLife::new(WIDTH, HEIGHT);
     let gol_ui = GolUI::new(screen_width(), screen_height(), &gol);

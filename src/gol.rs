@@ -17,7 +17,7 @@ pub struct Cell {
     pub y: usize,
 }
 #[derive(PartialEq, Debug)]
-pub enum GolErrors {
+pub enum GolError {
     IndexOutOfBounds,
 }
 
@@ -44,16 +44,16 @@ impl GameOfLife {
     }
 
     /// Adds a cell to the alive cells set.
-    pub fn add_living_cell(&mut self, cell: Cell) -> Result<(), GolErrors> {
+    pub fn add_living_cell(&mut self, cell: Cell) -> Result<(), GolError> {
         if cell.x < self.width && cell.y < self.height {
             self.alive_cells.insert(cell);
             return Ok(());
         }
-        Err(GolErrors::IndexOutOfBounds)
+        Err(GolError::IndexOutOfBounds)
     }
 
     /// Toggles the state of the cell between alive and dead.
-    pub fn toggle_cell(&mut self, cell: Cell) -> Result<(), GolErrors> {
+    pub fn toggle_cell(&mut self, cell: Cell) -> Result<(), GolError> {
         if self.is_alive_cell(&cell) {
             self.alive_cells.remove(&cell);
         } else {
@@ -128,7 +128,7 @@ pub fn insert_line_vertical_pattern(
     gol: &mut GameOfLife,
     position: Cell,
     length: i32,
-) -> Result<(), GolErrors> {
+) -> Result<(), GolError> {
     for i in 0..length {
         gol.add_living_cell(Cell {
             x: position.x + i as usize,
@@ -143,7 +143,7 @@ pub fn insert_square_pattern(
     gol: &mut GameOfLife,
     position: Cell,
     size: (usize, usize),
-) -> Result<(), GolErrors> {
+) -> Result<(), GolError> {
     for i in 0..size.0 {
         for j in 0..size.1 {
             gol.add_living_cell(Cell {
@@ -161,7 +161,7 @@ pub fn insert_square_pattern(
 /// 0 1 1
 /// Where 1 represents the living cells and 0 represents the dead ones,
 /// the top cell being the position passed as a parameter.
-pub fn insert_glider_pattern(gol: &mut GameOfLife, position: Cell) -> Result<(), GolErrors> {
+pub fn insert_glider_pattern(gol: &mut GameOfLife, position: Cell) -> Result<(), GolError> {
     gol.add_living_cell(position)?;
     gol.add_living_cell(Cell {
         x: position.x + 1,
@@ -188,7 +188,7 @@ mod tests {
 
     use super::*;
     #[test]
-    fn range_of_neighbourhood_for_5x5_board() -> Result<(), GolErrors> {
+    fn range_of_neighbourhood_for_5x5_board() -> Result<(), GolError> {
         let mut gol = GameOfLife::new(5, 5);
         insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 }, 3)?;
         let mut current_cell = Cell { x: 0, y: 0 }; // This test covers case of underflow
@@ -218,7 +218,7 @@ mod tests {
     }
 
     #[test]
-    fn range_of_neighbourhood_overflow_case() -> Result<(), GolErrors> {
+    fn range_of_neighbourhood_overflow_case() -> Result<(), GolError> {
         let mut gol = GameOfLife::new(usize::MAX, usize::MAX);
         insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 }, 3)?;
         insert_square_pattern(
@@ -252,7 +252,7 @@ mod tests {
     /// D D D D D
     /// D D D D D
     /// So the living cells are (0,1), (1,1), (2,1)
-    fn process_cell_for_5x5_board() -> Result<(), GolErrors> {
+    fn process_cell_for_5x5_board() -> Result<(), GolError> {
         let mut gol = GameOfLife::new(5, 5);
         insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 }, 3)?;
 
@@ -277,7 +277,7 @@ mod tests {
     #[test]
     /// The board for this test has the usual cross pattern as the previous boards and also has a square pattern at the
     /// bottom right corner, this pattern is constant.
-    fn process_cell_for_overflow_case() -> Result<(), GolErrors> {
+    fn process_cell_for_overflow_case() -> Result<(), GolError> {
         let mut gol = GameOfLife::new(usize::MAX, usize::MAX);
         insert_square_pattern(
             &mut gol,
@@ -333,7 +333,7 @@ mod tests {
     /// D D D D D
     /// D D D D D
     /// And then back again to the original disposition
-    fn transition() -> Result<(), GolErrors> {
+    fn transition() -> Result<(), GolError> {
         let mut gol = GameOfLife::new(5, 5);
         insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 }, 3)?;
         gol.transition();
@@ -351,7 +351,7 @@ mod tests {
         assert!(gol.alive_cells.contains(&Cell { x: 5, y: 14 }));
         assert_eq!(
             gol.add_living_cell(Cell { x: 5, y: 15 }),
-            Err(GolErrors::IndexOutOfBounds)
+            Err(GolError::IndexOutOfBounds)
         );
         assert!(!gol.alive_cells.contains(&Cell { x: 5, y: 15 }));
     }

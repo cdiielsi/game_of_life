@@ -1,4 +1,4 @@
-use crate::gol::{Cell, GameOfLife, GolErrors};
+use crate::gol::{Cell, GameOfLife, GolError};
 use macroquad::prelude::*;
 
 pub struct GolUI {
@@ -34,7 +34,7 @@ impl GolUI {
         &self,
         game_of_life: &mut GameOfLife,
         mouse_position: (f32, f32),
-    ) -> Result<(), GolErrors> {
+    ) -> Result<(), GolError> {
         let current_cell = self.get_cell_from_mouse_position(mouse_position);
         game_of_life.toggle_cell(current_cell)
     }
