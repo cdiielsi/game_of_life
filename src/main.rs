@@ -1,5 +1,5 @@
 use gol::{
-    Cell, GameOfLife, GolErrors, insert_line_vertical_pattern, insert_glider_pattern,
+    Cell, GameOfLife, GolErrors, insert_glider_pattern, insert_line_vertical_pattern,
     insert_square_pattern,
 };
 use gol_gui::{draw_gol_board, toggle_cell};
@@ -13,27 +13,29 @@ const HEIGHT: usize = 50;
 const SPEED: f64 = 0.3;
 
 const START_FOR_PATTERN_1: Cell = Cell { x: 0, y: 1 }; // Top left corner.
-const START_FOR_PATTERN_2: Cell = Cell { // Bottom right corner.
+const START_FOR_PATTERN_2: Cell = Cell {
+    // Bottom right corner.
     x: WIDTH - 2,
     y: HEIGHT - 2,
 };
-const START_FOR_PATTERN_3: Cell = Cell { // Middle of the board.
+const START_FOR_PATTERN_3: Cell = Cell {
+    // Middle of the board.
     x: WIDTH / 2,
     y: HEIGHT / 2,
 };
-const START_FOR_PATTERN_4: Cell = Cell { x: WIDTH-3, y: 1 }; // Top right corner.
+const START_FOR_PATTERN_4: Cell = Cell { x: WIDTH - 3, y: 1 }; // Top right corner.
 
 const LINE_PATTERN_SIZE: i32 = 3;
-const SQUARE_PATTERN_SIZE: (usize,usize) = (2,2);
+const SQUARE_PATTERN_SIZE: (usize, usize) = (2, 2);
 
 #[macroquad::main("BasicShapes")]
 async fn main() -> Result<(), GolErrors> {
     let mut last_update = get_time();
     let mut gol = GameOfLife::new(WIDTH, HEIGHT);
-    insert_line_vertical_pattern(&mut gol, START_FOR_PATTERN_1,LINE_PATTERN_SIZE)?;
-    insert_square_pattern(&mut gol, START_FOR_PATTERN_2,SQUARE_PATTERN_SIZE)?;
+    insert_line_vertical_pattern(&mut gol, START_FOR_PATTERN_1, LINE_PATTERN_SIZE)?;
+    insert_square_pattern(&mut gol, START_FOR_PATTERN_2, SQUARE_PATTERN_SIZE)?;
     insert_glider_pattern(&mut gol, START_FOR_PATTERN_3)?;
-    insert_line_vertical_pattern(&mut gol, START_FOR_PATTERN_4,LINE_PATTERN_SIZE)?;
+    insert_line_vertical_pattern(&mut gol, START_FOR_PATTERN_4, LINE_PATTERN_SIZE)?;
     let mut is_game_running = true;
     loop {
         clear_background(LIGHTGRAY);
