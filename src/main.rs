@@ -2,7 +2,7 @@ use gol::{
     Cell, GameOfLife, GolErrors, insert_glider_pattern, insert_line_vertical_pattern,
     insert_square_pattern,
 };
-use gol_gui::{draw_gol_board, toggle_cell};
+use gol_gui::GolUI;
 use macroquad::prelude::*;
 
 mod gol;
@@ -32,6 +32,7 @@ const SQUARE_PATTERN_SIZE: (usize, usize) = (2, 2);
 async fn main() -> Result<(), GolErrors> {
     let mut last_update = get_time();
     let mut gol = GameOfLife::new(WIDTH, HEIGHT);
+    let gol_ui = GolUI::new(screen_width(), screen_height(), &gol);
     insert_line_vertical_pattern(&mut gol, START_FOR_PATTERN_1, LINE_PATTERN_SIZE)?;
     insert_square_pattern(&mut gol, START_FOR_PATTERN_2, SQUARE_PATTERN_SIZE)?;
     insert_glider_pattern(&mut gol, START_FOR_PATTERN_3)?;
@@ -40,7 +41,7 @@ async fn main() -> Result<(), GolErrors> {
     loop {
         clear_background(LIGHTGRAY);
 
-        draw_gol_board(&gol);
+        gol_ui.draw_gol_board(&gol);
 
         if is_key_pressed(KeyCode::Space) {
             is_game_running = !is_game_running;
@@ -48,7 +49,7 @@ async fn main() -> Result<(), GolErrors> {
 
         if !is_game_running && is_mouse_button_pressed(MouseButton::Left) {
             let position = mouse_position();
-            toggle_cell(&mut gol, position)?;
+            gol_ui.toggle_cell(&mut gol, position)?;
         }
 
         if is_game_running && get_time() - last_update > SPEED {

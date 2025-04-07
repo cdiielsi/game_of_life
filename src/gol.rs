@@ -7,7 +7,7 @@ use std::{cmp::min, collections::HashSet};
 pub struct GameOfLife {
     width: usize,
     height: usize,
-    alive_cells: HashSet<Cell>,
+    pub alive_cells: HashSet<Cell>,
 }
 
 /// Cell is a strcut with two fields that reference the cell's coordinates on the board.
@@ -44,13 +44,22 @@ impl GameOfLife {
     }
 
     /// Adds a cell to the alive cells set.
-    /// TODO: handle coordinates outiside the boards range with error
     pub fn add_living_cell(&mut self, cell: Cell) -> Result<(), GolErrors> {
         if cell.x < self.width && cell.y < self.height {
             self.alive_cells.insert(cell);
             return Ok(());
         }
         Err(GolErrors::IndexOutOfBounds)
+    }
+
+    /// Toggles the state of the cell between alive and dead.
+    pub fn toggle_cell(&mut self, cell: Cell) -> Result<(), GolErrors> {
+        if self.is_alive_cell(&cell) {
+            self.alive_cells.remove(&cell);
+        } else {
+            self.add_living_cell(cell)?
+        }
+        return Ok(());
     }
 
     /// Updates alive_cell field with the new living cells.
