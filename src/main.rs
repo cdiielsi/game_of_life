@@ -25,7 +25,7 @@ const START_FOR_PATTERN_3: Cell = Cell {
 };
 const START_FOR_PATTERN_4: Cell = Cell { x: WIDTH - 3, y: 1 }; // Top right corner.
 
-const LINE_PATTERN_SIZE: i32 = 3;
+const LINE_PATTERN_SIZE: usize = 3;
 const SQUARE_PATTERN_SIZE: (usize, usize) = (2, 2);
 
 #[macroquad::main("BasicShapes")]

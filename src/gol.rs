@@ -120,17 +120,36 @@ impl GameOfLife {
     }
 }
 
+impl Cell {
+    fn add(&self, position: Cell) -> Cell {
+        Cell {
+            x: self.x + position.x,
+            y: self.y + position.y,
+        }
+    }
+}
+
+pub fn draw_figure_from_base_coordinates(
+    game_of_life: &mut GameOfLife,
+    base_coordinates: Cell,
+    positions: &Vec<Cell>,
+) -> Result<(), GolError> {
+    game_of_life.add_living_cell(base_coordinates)?;
+    for position in positions {
+        game_of_life.add_living_cell(base_coordinates.add(*position))?;
+    }
+    Ok(())
+}
+
 /// Inserts a vertical line pattern of any length, the top cell being the position passed as a parameter.
 pub fn insert_line_vertical_pattern(
     gol: &mut GameOfLife,
     position: Cell,
-    length: i32,
+    length: usize,
 ) -> Result<(), GolError> {
-    for i in 0..length {
-        gol.add_living_cell(Cell {
-            x: position.x + i as usize,
-            y: position.y,
-        })?;
+    for x in 0..length {
+        let new_position = Cell { x, y: 0 };
+        gol.add_living_cell(position.add(new_position))?;
     }
     Ok(())
 }
@@ -141,42 +160,29 @@ pub fn insert_square_pattern(
     position: Cell,
     size: (usize, usize),
 ) -> Result<(), GolError> {
-    for i in 0..size.0 {
-        for j in 0..size.1 {
-            gol.add_living_cell(Cell {
-                x: position.x + i,
-                y: position.y + j,
-            })?;
+    for x in 0..size.0 {
+        for y in 0..size.1 {
+            let new_position = Cell { x, y };
+            gol.add_living_cell(position.add(new_position))?;
         }
     }
     Ok(())
 }
 
 /// Inserts a glider patter in the following instance:
-/// 0 1
+/// 0 1 0 0
 /// 0 0 1 1
-/// 0 1 1
+/// 0 1 1 0
 /// Where 1 represents the living cells and 0 represents the dead ones,
 /// the top cell being the position passed as a parameter.
 pub fn insert_glider_pattern(gol: &mut GameOfLife, position: Cell) -> Result<(), GolError> {
-    gol.add_living_cell(position)?;
-    gol.add_living_cell(Cell {
-        x: position.x + 1,
-        y: position.y + 1,
-    })?;
-    gol.add_living_cell(Cell {
-        x: position.x + 1,
-        y: position.y + 2,
-    })?;
-    gol.add_living_cell(Cell {
-        x: position.x + 2,
-        y: position.y,
-    })?;
-    gol.add_living_cell(Cell {
-        x: position.x + 2,
-        y: position.y + 1,
-    })?;
-    Ok(())
+    let positions = vec![
+        Cell { x: 1, y: 1 },
+        Cell { x: 1, y: 2 },
+        Cell { x: 2, y: 0 },
+        Cell { x: 2, y: 1 },
+    ];
+    draw_figure_from_base_coordinates(gol, position, &positions)
 }
 
 #[cfg(test)]
