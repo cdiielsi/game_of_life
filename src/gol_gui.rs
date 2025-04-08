@@ -40,22 +40,13 @@ impl GolUI {
     }
 
     fn draw_cell(&self, cell: Cell, is_alive: bool) {
-        if is_alive {
-            draw_rectangle(
-                (cell.x as f32 * self.x_size) + 1.0,
-                (cell.y as f32 * self.y_size) + 1.0,
-                self.x_size - 1.0,
-                self.y_size - 1.0,
-                BLACK,
-            );
-        } else {
-            draw_rectangle(
-                (cell.x as f32 * self.x_size) + 1.0,
-                (cell.y as f32 * self.y_size) + 1.0,
-                self.x_size - 1.0,
-                self.y_size - 1.0,
-                WHITE,
-            );
-        }
+        let color = if is_alive { BLACK } else { WHITE };
+        draw_rectangle(
+            (cell.x as f32 * self.x_size) + 1.0,
+            (cell.y as f32 * self.y_size) + 1.0,
+            self.x_size - 1.0,
+            self.y_size - 1.0,
+            color,
+        );
     }
 }
