@@ -7,7 +7,7 @@ use std::{cmp::min, collections::HashSet};
 pub struct GameOfLife {
     width: usize,
     height: usize,
-    pub alive_cells: HashSet<Cell>,
+    alive_cells: HashSet<Cell>,
 }
 
 /// Cell is a strcut with two fields that reference the cell's coordinates on the board.
@@ -187,7 +187,10 @@ mod tests {
     #[test]
     fn range_of_neighbourhood_for_5x5_board() -> Result<(), GolError> {
         let mut gol = GameOfLife::new(5, 5);
-        insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 }, 3)?;
+        assert_eq!(
+            insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 }, 3),
+            Ok(())
+        );
         let mut current_cell = Cell { x: 0, y: 0 }; // This test covers case of underflow
         let (x_star, x_end) = gol.get_range_for_neighbourhood(current_cell.x, gol.width);
         let (y_star, y_end) = gol.get_range_for_neighbourhood(current_cell.y, gol.height);
@@ -215,17 +218,23 @@ mod tests {
     }
 
     #[test]
-    fn range_of_neighbourhood_overflow_case() -> Result<(), GolError> {
+    fn range_of_neighbourhood_overflow_case() {
         let mut gol = GameOfLife::new(usize::MAX, usize::MAX);
-        insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 }, 3)?;
-        insert_square_pattern(
-            &mut gol,
-            Cell {
-                x: usize::MAX - 2,
-                y: usize::MAX - 2,
-            },
-            (2, 2),
-        )?;
+        assert_eq!(
+            insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 }, 3),
+            Ok(())
+        );
+        assert_eq!(
+            insert_square_pattern(
+                &mut gol,
+                Cell {
+                    x: usize::MAX - 2,
+                    y: usize::MAX - 2,
+                },
+                (2, 2),
+            ),
+            Ok(())
+        );
 
         let current_cell = Cell {
             x: usize::MAX - 1,
@@ -237,7 +246,6 @@ mod tests {
         assert_eq!(x_end, usize::MAX);
         assert_eq!(y_start, usize::MAX - 2);
         assert_eq!(y_end, usize::MAX);
-        Ok(())
     }
 
     #[test]
@@ -249,9 +257,12 @@ mod tests {
     /// D D D D D
     /// D D D D D
     /// So the living cells are (0,1), (1,1), (2,1)
-    fn process_cell_for_5x5_board() -> Result<(), GolError> {
+    fn process_cell_for_5x5_board() {
         let mut gol = GameOfLife::new(5, 5);
-        insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 }, 3)?;
+        assert_eq!(
+            insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 }, 3),
+            Ok(())
+        );
 
         let current_cell = Cell { x: 0, y: 0 }; // Dead cell only has 2 living neighbours => stays dead.
         assert_eq!(gol.count_cell_living_neighbours(&current_cell), 2);
@@ -268,22 +279,24 @@ mod tests {
         let current_cell = Cell { x: 1, y: 0 }; // Dead cell has 3 living neighbours => cell comes to life.
         assert_eq!(gol.count_cell_living_neighbours(&current_cell), 3);
         assert!(gol.cell_next_state_is_alive(&current_cell));
-        Ok(())
     }
 
     #[test]
     /// The board for this test has the usual cross pattern as the previous boards and also has a square pattern at the
     /// bottom right corner, this pattern is constant.
-    fn process_cell_for_overflow_case() -> Result<(), GolError> {
+    fn process_cell_for_overflow_case() {
         let mut gol = GameOfLife::new(usize::MAX, usize::MAX);
-        insert_square_pattern(
-            &mut gol,
-            Cell {
-                x: usize::MAX - 2,
-                y: usize::MAX - 2,
-            },
-            (2, 2),
-        )?;
+        assert_eq!(
+            insert_square_pattern(
+                &mut gol,
+                Cell {
+                    x: usize::MAX - 2,
+                    y: usize::MAX - 2,
+                },
+                (2, 2),
+            ),
+            Ok(())
+        );
 
         let current_cell = Cell {
             x: usize::MAX - 1,
@@ -312,7 +325,6 @@ mod tests {
         }; // Alive cell has 3 living neighbours => stays alive.
         assert_eq!(gol.count_cell_living_neighbours(&current_cell), 3);
         assert!(gol.cell_next_state_is_alive(&current_cell));
-        Ok(())
     }
 
     #[test]
@@ -330,15 +342,17 @@ mod tests {
     /// D D D D D
     /// D D D D D
     /// And then back again to the original disposition
-    fn transition() -> Result<(), GolError> {
+    fn transition() {
         let mut gol = GameOfLife::new(5, 5);
-        insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 }, 3)?;
+        assert_eq!(
+            insert_line_vertical_pattern(&mut gol, Cell { x: 0, y: 1 }, 3),
+            Ok(())
+        );
         gol.transition();
         assert_eq!(gol.alive_cells.len(), 3);
         assert!(gol.alive_cells.contains(&Cell { x: 1, y: 0 }));
         assert!(gol.alive_cells.contains(&Cell { x: 1, y: 1 }));
         assert!(gol.alive_cells.contains(&Cell { x: 1, y: 2 }));
-        Ok(())
     }
 
     #[test]
@@ -351,5 +365,36 @@ mod tests {
             Err(GolError::IndexOutOfBounds)
         );
         assert!(!gol.alive_cells.contains(&Cell { x: 5, y: 15 }));
+    }
+
+    #[test]
+    fn toggle_living_cell() {
+        let mut gol = GameOfLife::new(10, 15);
+        let cell = Cell { x: 5, y: 14 };
+        assert_eq!(gol.add_living_cell(cell), Ok(()));
+        assert!(gol.alive_cells.contains(&cell));
+        assert_eq!(gol.toggle_cell(cell), Ok(()));
+        assert!(!gol.alive_cells.contains(&cell));
+        assert_eq!(gol.toggle_cell(cell), Ok(()));
+        assert!(gol.alive_cells.contains(&cell));
+    }
+
+    #[test]
+    fn toggle_dead_cell() {
+        let mut gol = GameOfLife::new(10, 15);
+        let cell = Cell { x: 5, y: 14 };
+        assert!(!gol.alive_cells.contains(&cell));
+        assert_eq!(gol.toggle_cell(cell), Ok(()));
+        assert!(gol.alive_cells.contains(&cell));
+        assert_eq!(gol.toggle_cell(cell), Ok(()));
+        assert!(!gol.alive_cells.contains(&cell));
+    }
+
+    #[test]
+    fn toggle_out_of_bounds_cell() {
+        let mut gol = GameOfLife::new(10, 15);
+        let cell = Cell { x: 5, y: 15 };
+        assert_eq!(gol.toggle_cell(cell), Err(GolError::IndexOutOfBounds));
+        assert!(!gol.alive_cells.contains(&cell));
     }
 }
